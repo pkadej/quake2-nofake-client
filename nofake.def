@@ -1,0 +1,3 @@
+EXPORTS
+	TDM_pluginUnload=TDM_pluginUnload
+	TDM_pluginLoad=TDM_pluginLoad

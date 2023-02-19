@@ -1,0 +1,39 @@
+# Makefile to use with lccwin32 compiler (lcc)
+
+CC=lcc
+CFLAGS=-DC_ONLY -DLCC -D__WIN32__ -D__i386__ -O -errout=nofake.err -I../../src/ -Iaes/ -Imd5/
+OBJS=nofake.obj lcchack.obj
+AES_OBJS=aes/aescrypt.obj aes/aeskey.obj aes/aestab.obj aes/aes_modes.obj
+MD5_OBJS=md5/md5.obj
+
+all:	nofake.dll
+
+#libcurl.lib and pthreadvc2.lib are generated from MSVC versions by Wedit: Utils->Import foreign library
+
+nofake.dll:	$(OBJS) $(AES_OBJS) $(MD5_OBJS) nofake.def
+	lcclnk -s -subsystem windows -dll -entry DLLMain $(OBJS) $(AES_OBJS) $(MD5_OBJS) libcurl.lib pthreadvc2.lib nofake.def -o ../nofake.dll
+
+nofake.obj:	nofake.c nofake.h
+	$(CC) $(CFLAGS) nofake.c
+
+#hack for LCC - this file contains our entry point function only required for LCC
+
+lcchack.obj:	lcchack.c
+	$(CC) $(CFLAGS) lcchack.c
+
+aes/aescrypt.o: aes/aescrypt.c aes/aes.h aes/aesopt.h aes/aestab.h aes/brg_endian.h aes/brg_types.h
+	$(CC) $(CFLAGS) aes/aescrypt.c
+
+aes/aeskey.o: aes/aeskey.c aes/aes.h aes/aesopt.h aes/aestab.h aes/brg_endian.h aes/brg_types.h
+	$(CC) $(CFLAGS) aes/aeskey.c
+
+aes/aestab.o: aes/aestab.c aes/aes.h aes/aesopt.h aes/aestab.h aes/brg_endian.h aes/brg_types.h
+	$(CC) $(CFLAGS) aes/aestab.c
+
+aes/aes_modes.o: aes/aes_modes.c aes/aes.h aes/aesopt.h aes/aestab.h aes/brg_endian.h aes/brg_types.h
+	$(CC) $(CFLAGS) aes/aes_modes.c
+
+md5/md5.o: md5/md5.c md5/md5.h
+	$(CC) $(CFLAGS) md5/md5.c
+clean:
+	del *.obj
